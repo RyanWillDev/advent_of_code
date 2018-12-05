@@ -30,10 +30,9 @@ defmodule AOC.TwentyEighteen.Day3 do
   end
 
   def get_claimed_area([_id, left_offset, top_offset, width, height]) do
-    for x <- (top_offset + 1)..(top_offset + height) do
-      for y <- (left_offset + 1)..(left_offset + width) do
-        {x, y}
-      end
+    for x <- (top_offset + 1)..(top_offset + height),
+        y <- (left_offset + 1)..(left_offset + width) do
+      {x, y}
     end
     |> List.flatten()
     |> MapSet.new()
