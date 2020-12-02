@@ -201,17 +201,21 @@ x = [
   1970
 ]
 
-t = [
-  675,
-  1721,
-  979,
-  366,
-  299,
-  1456
-]
+t =
+  [
+    675,
+    979,
+    366,
+    1721,
+    299,
+    1456
+  ]
+  |> Enum.shuffle()
+
+t = [366, 1721, 299, 675, 1456, 979]
 
 r =
-  Enum.reduce_while(t, {nil, 0, nil, [], %{}}, fn
+  Enum.reduce_while(x, {nil, 0, nil, [], %{}}, fn
     # First clause just delays so we can check first 2 numbers
     n, {_, i, nil, prev, m} ->
       {:cont, {nil, i + 1, n, prev, m}}
@@ -222,8 +226,8 @@ r =
 
       # This will stop the search if the current value meets the conditions
       if pair do
-        IO.inspect(m, label: "current check")
         {x, y} = pair
+        IO.inspect({x, y, n, last, m}, label: "current check")
         {:halt, {{x, y, n}, i}}
       else
         # Add the current and last numbers and subtract from sum to see what
@@ -237,22 +241,36 @@ r =
             # map
             m
           else
-            Map.update(m, need, {n, last}, fn _ -> raise "already exists" end)
+            Map.update(m, need, {n, last}, fn v -> v end)
           end
 
+        prev = [last | prev]
+
         r =
-          Enum.reduce_while(prev, {false, nil}, fn p, {_, _} = acc ->
+          Enum.reduce_while(prev, {false, nil, m}, fn p, {_, _, m} = acc ->
             # Since the map of numbers we are looking for may have changed we
             # need to check if any of the previously seen numbers are now
             # a match
             pair = Map.get(m, p)
 
             if pair do
-              IO.inspect(p, label: "prev check")
               {x, y} = pair
+              IO.inspect({x, y, p, n, m}, label: "prev check")
               {:halt, {true, {x, y, p}}}
             else
-              {:cont, acc}
+              need = 2020 - (n + p)
+
+              m =
+                if need <= 0 do
+                  # Since the number we'd need is either 0 or a negative, neither of
+                  # which are contained in the list, we don't need to add it to the
+                  # map
+                  m
+                else
+                  Map.update(m, need, {n, p}, fn v -> v end)
+                end
+
+              {:cont, {false, nil, m}}
             end
           end)
 
@@ -262,9 +280,7 @@ r =
           {true, nums} ->
             {:halt, {nums, i}}
 
-          {_, _} ->
-            prev = [last | prev]
-
+          {_, _, m} ->
             {:cont, {nil, i + 1, n, prev, m}}
         end
       end
@@ -279,5 +295,6 @@ case r do
     )
 
   r ->
+    IO.inspect(t, label: "test input")
     IO.inspect(r, label: "result")
 end
