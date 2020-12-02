@@ -201,18 +201,27 @@ x = [
   1970
 ]
 
-t =
-  [
-    675,
-    979,
-    366,
-    1721,
-    299,
-    1456
-  ]
-  |> Enum.shuffle()
+t = [
+  675,
+  979,
+  366,
+  1721,
+  299,
+  1456
+]
 
-t = [366, 1721, 299, 675, 1456, 979]
+store_diff = fn map, x, y ->
+  need = 2020 - (x + y)
+
+  # Since the number we'd need is either 0 or a negative, neither of
+  # which are contained in the list, we don't need to add it to the
+  # map
+  if need <= 0 do
+    map
+  else
+    Map.put(map, need, {x, y})
+  end
+end
 
 r =
   Enum.reduce_while(x, {nil, 0, nil, [], %{}}, fn
@@ -227,27 +236,12 @@ r =
       # This will stop the search if the current value meets the conditions
       if pair do
         {x, y} = pair
-        IO.inspect({x, y, n, last, m}, label: "current check")
         {:halt, {{x, y, n}, i}}
       else
-        # Add the current and last numbers and subtract from sum to see what
-        # number we need to meet the sum
-        need = 2020 - (n + last)
-
-        m =
-          if need <= 0 do
-            # Since the number we'd need is either 0 or a negative, neither of
-            # which are contained in the list, we don't need to add it to the
-            # map
-            m
-          else
-            Map.update(m, need, {n, last}, fn v -> v end)
-          end
-
-        prev = [last | prev]
+        m = store_diff.(m, n, last)
 
         r =
-          Enum.reduce_while(prev, {false, nil, m}, fn p, {_, _, m} = acc ->
+          Enum.reduce_while(prev, {false, nil, m}, fn p, {_, _, m} ->
             # Since the map of numbers we are looking for may have changed we
             # need to check if any of the previously seen numbers are now
             # a match
@@ -255,20 +249,9 @@ r =
 
             if pair do
               {x, y} = pair
-              IO.inspect({x, y, p, n, m}, label: "prev check")
               {:halt, {true, {x, y, p}}}
             else
-              need = 2020 - (n + p)
-
-              m =
-                if need <= 0 do
-                  # Since the number we'd need is either 0 or a negative, neither of
-                  # which are contained in the list, we don't need to add it to the
-                  # map
-                  m
-                else
-                  Map.update(m, need, {n, p}, fn v -> v end)
-                end
+              m = store_diff.(m, n, p)
 
               {:cont, {false, nil, m}}
             end
@@ -281,6 +264,7 @@ r =
             {:halt, {nums, i}}
 
           {_, _, m} ->
+            prev = [last | prev]
             {:cont, {nil, i + 1, n, prev, m}}
         end
       end
