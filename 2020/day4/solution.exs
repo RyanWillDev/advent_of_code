@@ -23,21 +23,31 @@ defmodule Day4 do
     |> (fn {last, acc} -> [Map.new(last) | acc] end).()
   end
 
+  # Uses Map.get default value to detect missing keys
   def field_valid?(_, nil), do: false
 
   def field_valid?(:byr, v) do
     y = String.to_integer(v)
     y >= 1920 && y <= 2002
+  rescue
+    ArgumentError ->
+      false
   end
 
   def field_valid?(:iyr, v) do
     y = String.to_integer(v)
     y >= 2010 && y <= 2020
+  rescue
+    ArgumentError ->
+      false
   end
 
   def field_valid?(:eyr, v) do
     y = String.to_integer(v)
     y >= 2020 && y <= 2030
+  rescue
+    ArgumentError ->
+      false
   end
 
   def field_valid?(:hgt, v) do
@@ -55,6 +65,9 @@ defmodule Day4 do
       _ ->
         false
     end
+  rescue
+    ArgumentError ->
+      false
   end
 
   def field_valid?(:hcl, "#" <> v) do
