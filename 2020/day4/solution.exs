@@ -1,6 +1,4 @@
 defmodule Day4 do
-  @required_fields ~w(byr iyr eyr hgt hcl ecl pid)a
-
   def input do
     # File.stream!("./test.txt")
     File.stream!("./day4.txt")
@@ -92,7 +90,7 @@ defmodule Day4 do
   def do_count_valid_data1([], count), do: count
 
   def do_count_valid_data1([h | t], count) do
-    valid? = Enum.all?(@required_fields, &Map.has_key?(h, &1))
+    valid? = Enum.all?(~w(byr iyr eyr hgt hcl ecl pid)a, &Map.has_key?(h, &1))
     count = if valid?, do: count + 1, else: count
 
     do_count_valid_data1(t, count)
@@ -106,7 +104,7 @@ defmodule Day4 do
 
   def do_count_valid_data2([h | t], count) do
     valid? =
-      Enum.all?(@required_fields, fn key ->
+      Enum.all?(~w(byr iyr eyr hgt hcl ecl pid)a, fn key ->
         field_valid?(key, Map.get(h, key))
       end)
 
