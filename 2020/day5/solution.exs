@@ -36,8 +36,6 @@ defmodule Day5 do
     Enum.take(space, splitter * div(length(space), 2))
   end
 
-  def shrink_space([x], _), do: x
-
   def split_bits(bits) do
     bits
     |> String.split("", trim: true)
