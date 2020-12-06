@@ -4,13 +4,34 @@ defmodule Day6 do
     |> get_count()
   end
 
-  def part2 do
+  def part2(input) do
+    input
+    |> Enum.map(fn answers ->
+      get_answer_count(answers)
+    end)
+    |> Enum.sum()
   end
 
   def input(test? \\ false) do
     path = if test?, do: "./test.txt", else: "./day6.txt"
 
-    File.stream!(path)
+    File.read!(path)
+    |> String.split("\n\n")
+  end
+
+  def get_answer_count(group) do
+    answers = String.split(group, "\n", trim: true)
+    num_of_group_members = Enum.count(answers)
+
+    frequencies =
+      Enum.reduce(answers, %{}, fn answers, frequencies ->
+        String.split(answers, "", trim: true)
+        |> Enum.reduce(frequencies, fn answer, f -> Map.update(f, answer, 1, &(&1 + 1)) end)
+      end)
+
+    Enum.reduce(frequencies, 0, fn {_, v}, acc ->
+      if v == num_of_group_members, do: acc + 1, else: acc
+    end)
   end
 
   def get_count(answers) do
@@ -42,3 +63,7 @@ end
 Day6.input()
 |> Day6.part1()
 |> IO.inspect(label: "The answer to part 1 is")
+
+Day6.input()
+|> Day6.part2()
+|> IO.inspect(label: "The answer to part 2 is")
