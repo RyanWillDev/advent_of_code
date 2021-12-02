@@ -1,4 +1,4 @@
-#include "helper.h"
+#include "input.h"
 #include <stdio.h>
 
 int test_depths[10] = {199, 200, 208, 210, 200, 207, 240, 269, 260, 263};
