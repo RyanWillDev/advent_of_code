@@ -51,13 +51,11 @@ int part2(void) {
       break;
     }
 
-    // Using * to get around pointer stuff for now
-    for (int j = 1 * current_window_start; j < (current_window_start + WINDOW_SIZE); j++) {
+    for (int j = current_window_start; j < (current_window_start + WINDOW_SIZE); j++) {
       current_window_sum += depths[j];
     }
 
-    // Using * to get around pointer stuff for now
-    for (int j = 1 * next_window_start; j < (next_window_start + WINDOW_SIZE); j++) {
+    for (int j = next_window_start; j < (next_window_start + WINDOW_SIZE); j++) {
       next_window_sum += depths[j];
     }
 
