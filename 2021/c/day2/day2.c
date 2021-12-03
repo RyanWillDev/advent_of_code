@@ -13,9 +13,11 @@ char test_direction[6][8] = {
 };
 
 int part1(void);
+int part2(void);
 
 int main(void) {
   printf("The answer to part 1 is: %i\n", part1());
+  printf("The answer to part 2 is: %i\n", part2());
 }
 
 int part1(void) {
@@ -32,6 +34,27 @@ int part1(void) {
       depth -= amount[i];
     } else if (strcmp(direction[i], "forward") == 0) {
       horizontal_position += amount[i];
+    }
+  }
+
+  return depth * horizontal_position;
+}
+
+int part2(void) {
+  int aim = 0;
+  int horizontal_position = 0;
+  int depth = 0;
+
+  int array_length = sizeof(amount) / sizeof(amount[0]);
+
+  for (int i = 0; i < array_length; i++) {
+    if (strcmp(direction[i], "down") == 0) {
+      aim += amount[i];
+    } else if (strcmp(direction[i], "up") == 0) {
+      aim -= amount[i];
+    } else if (strcmp(direction[i], "forward") == 0) {
+      horizontal_position += amount[i];
+      depth += (aim * amount[i]);
     }
   }
 
