@@ -2,3 +2,5 @@
 _build
 .DS_Store
 *.out
+2022/**/*.js
+2022/**/node_modules/
