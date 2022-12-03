@@ -89,7 +89,7 @@ export function part1(input: string[]) {
     return round(...moves);
   };
 
-  return input.map(mapper).reduce((x, y) => x + y, 0);
+  return solve(input, mapper);
 }
 
 export function part2(input: string[]) {
@@ -101,6 +101,10 @@ export function part2(input: string[]) {
     return round(opp, me);
   };
 
+  return solve(input, mapper);
+}
+
+function solve(input: string[], mapper: (i: string) => number) {
   return input.map(mapper).reduce((x, y) => x + y, 0);
 }
 
