@@ -4,6 +4,26 @@ export function part1(input: string[]) {
   return input.map(checkRucksack).reduce(sum);
 }
 
+type Chunks = string[][][];
+type Acc = [string[], Chunks];
+function chunkBy(input: string[], n: number): Chunks {
+  return input
+    .reduce(
+      (acc: Acc, items: string) => {
+        const [chunk, chunks] = acc;
+        const c = [items.split(''), ...chunk];
+
+        if (c.length === n) {
+          return [[], [c, ...chunks]] as Acc;
+        }
+
+        return [c, chunks] as Acc;
+      },
+      [[], []]
+    )
+    .pop() as Chunks;
+}
+
 function sum(x: number = 0, y: number = 0) {
   return x + y;
 }
