@@ -20,18 +20,20 @@ function getPriority(char: string): number {
   return priority + 1;
 }
 
-function findCommonItem(a: string[], b: string[]) {
-  const cOneItems = new Set();
+function findCommonItem<T>(a: T[], ...rest: T[][]): T {
+  const collections = rest.map((c) => {
+    const s = new Set();
+    for (let i of c) {
+      s.add(i);
+    }
+    return s;
+  });
 
-  for (let i in a) {
-    cOneItems.add(a[i]);
-  }
-
-  const common = b.find((i) => cOneItems.has(i));
+  const common = a.find((i) => collections.every((c) => c.has(i)));
 
   if (!common) {
-    console.log(`No common element found in ${a} and ${b}`);
-    throw new Error('No commont item found');
+    console.log(`No common element found in ${a} and ${rest}`);
+    throw new Error('No common item found');
   }
 
   return common;
