@@ -4,6 +4,11 @@ export function part1(input: string[]) {
   return input.map(checkRucksack).reduce(sum);
 }
 
+export function part2(input: string[]) {
+  const mapper = (c: string[][]) => getPriority(findCommonItem(c[0], ...c));
+  return chunkBy(input, 3).map(mapper).reduce(sum);
+}
+
 type Chunks = string[][][];
 type Acc = [string[], Chunks];
 function chunkBy(input: string[], n: number): Chunks {
@@ -63,7 +68,6 @@ function findCommonItem<T>(a: T[], ...rest: T[][]): T {
   return common;
 }
 
-export function part2() {}
 export function processInput(input: string) {
   return input.trim().split('\n');
 }
