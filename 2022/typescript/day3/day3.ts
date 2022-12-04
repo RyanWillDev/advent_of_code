@@ -1,7 +1,11 @@
 import { PRIORITIES } from './pritorities';
 
 export function part1(input: string[]) {
-  return input.map(checkRucksack).reduce((x, y) => x + y, 0);
+  return input.map(checkRucksack).reduce(sum);
+}
+
+function sum(x: number = 0, y: number = 0) {
+  return x + y;
 }
 
 function checkRucksack(input: string) {
