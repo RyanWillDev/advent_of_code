@@ -1,26 +1,25 @@
 defmodule Solution do
   def part_1 do
-    read_input()
-    |> Enum.reduce(0, fn levels, acc ->
-      %{safe?: safe?} =
-        Enum.reduce(levels, %{safe?: true, prev: nil, comparator: nil}, fn
-          level, %{prev: nil} = acc ->
-            %{acc | prev: level}
-
-          level, %{safe?: true, prev: prev, comparator: nil} = acc ->
-            comparator = get_comparator(level, prev)
-
-            %{acc | safe?: safe?(level, prev, comparator), prev: level, comparator: comparator}
-
-          level, %{safe?: true, prev: prev, comparator: comparator} = acc ->
-            %{acc | safe?: safe?(level, prev, comparator), prev: level}
-
-          _level, acc ->
-            acc
-        end)
-
-      if safe?, do: acc + 1, else: acc
+    Enum.reduce(read_input(), 0, fn levels, acc ->
+      if report_safe?(levels), do: acc + 1, else: acc
     end)
+  end
+
+  defp report_safe?([a, b | _rest] = levels) do
+    comparator = get_comparator(a, b)
+    report_safe?(levels, comparator)
+  end
+
+  defp report_safe?([a, b], comparator) do
+    safe?(a, b, comparator)
+  end
+
+  defp report_safe?([a, b | rest], comparator) do
+    if safe?(a, b, comparator) do
+      report_safe?([b | rest], comparator)
+    else
+      false
+    end
   end
 
   defp safe?(a, b, comparator) do
