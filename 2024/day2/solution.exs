@@ -8,17 +8,7 @@ defmodule Solution do
             %{acc | prev: level}
 
           level, %{safe?: true, prev: prev, comparator: nil} = acc ->
-            comparator =
-              cond do
-                level > prev ->
-                  &Kernel.>/2
-
-                level < prev ->
-                  &Kernel.</2
-
-                true ->
-                  nil
-              end
+            comparator = get_comparator(level, prev)
 
             %{acc | safe?: safe?(level, prev, comparator), prev: level, comparator: comparator}
 
@@ -33,10 +23,24 @@ defmodule Solution do
     end)
   end
 
-  defp safe?(_a, _b, nil), do: false
-
   defp safe?(a, b, comparator) do
     comparator.(a, b) && abs(a - b) in 1..3
+  end
+
+  defp get_comparator(a, b) do
+    cond do
+      a > b ->
+        &Kernel.>/2
+
+      a < b ->
+        &Kernel.</2
+
+      true ->
+        fn _a, _b -> false end
+    end
+  end
+
+  def part_2 do
   end
 
   defp read_input(test? \\ false) do
