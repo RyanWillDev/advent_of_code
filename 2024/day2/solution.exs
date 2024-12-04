@@ -6,8 +6,7 @@ defmodule Solution do
   end
 
   def part_2 do
-    read_input()
-    |> Enum.reduce(0, fn report, acc ->
+    Enum.reduce(read_input(), 0, fn report, acc ->
       if report_safe?(report, true), do: acc + 1, else: acc
     end)
   end
@@ -17,19 +16,7 @@ defmodule Solution do
     levels_safe?(levels, %{compare_fn: compare_fn, prev: [], dampen?: dampen?})
   end
 
-  defp levels_safe?([a, b], %{compare_fn: compare, dampen?: dampen?, prev: prev}) do
-    cond do
-      safe?(a, b, compare) ->
-        true
-
-      dampen? ->
-        report_safe?(prev ++ [a], false) or
-          report_safe?(prev ++ [b], false)
-
-      true ->
-        false
-    end
-  end
+  defp levels_safe?([_level], _ctx), do: true
 
   defp levels_safe?(
          [a, b | rest] = levels,
@@ -40,19 +27,13 @@ defmodule Solution do
         levels_safe?([b | rest], %{ctx | prev: prev ++ [a]})
 
       dampen? ->
-        without_b = prev ++ [a] ++ rest
         without_a = prev ++ [b] ++ rest
+        without_b = prev ++ [a] ++ rest
 
-        case prev do
-          # If prev only contains the first element we can attempt a report without it
-          [_p] ->
-            report_safe?(without_a, false) or
-              report_safe?(without_b, false) or
-              report_safe?(levels, false)
-
-          _ ->
-            report_safe?(without_a, false) or report_safe?(without_b, false)
-        end
+        # If prev only contains the first element we can attempt a report without it
+        report_safe?(without_a, false) or
+          report_safe?(without_b, false) or
+          (length(prev) == 1 && report_safe?(levels, false))
 
       true ->
         false
