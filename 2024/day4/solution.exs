@@ -43,29 +43,33 @@ defmodule Solution do
   end
 
   defp vertical_match_count(coords, {c, r}, string) do
-    coords
-    |> get_letters(num_moves(string), {&Kernel.+(&1, c), fn _ -> r end})
+    above = {&Kernel.+(&1 * -1, c), stationary(r)}
+    below = {&Kernel.+(&1, c), stationary(r)}
+
+    [above, below]
+    |> Enum.map(&get_letters(coords, num_moves(string), &1))
     |> Enum.count(&check_match(&1, string))
   end
 
   defp horizontal_match_count(coords, {c, r}, string) do
-    coords
-    |> get_letters(num_moves(string), {fn _ -> c end, &Kernel.+(&1, r)})
+    left = {stationary(c), &Kernel.+(&1 * -1, r)}
+    right = {stationary(c), &Kernel.+(&1 * 1, r)}
+
+    [left, right]
+    |> Enum.map(&get_letters(coords, num_moves(string), &1))
     |> Enum.count(&check_match(&1, string))
   end
 
   defp diagonal_match_count(coords, {c, r}, string) do
-    right_slant =
-      coords
-      |> get_letters(num_moves(string), {&Kernel.+(&1, c), &Kernel.+(&1, r)})
-      |> Enum.count(&check_match(&1, string))
+    negative_slope_above = {&Kernel.+(&1 * -1, c), &Kernel.+(&1 * -1, r)}
+    negative_slope_below = {&Kernel.+(&1, c), &Kernel.+(&1, r)}
 
-    left_slant =
-      coords
-      |> get_letters(num_moves(string), {&Kernel.+(&1 * -1, c), &Kernel.+(&1, r)})
-      |> Enum.count(&check_match(&1, string))
+    postive_slope_above = {&Kernel.+(&1 * -1, c), &Kernel.+(&1, r)}
+    postive_slope_below = {&Kernel.+(&1, c), &Kernel.+(&1 * -1, r)}
 
-    left_slant + right_slant
+    [negative_slope_above, negative_slope_below, postive_slope_above, postive_slope_below]
+    |> Enum.map(&get_letters(coords, num_moves(string), &1))
+    |> Enum.count(&check_match(&1, string))
   end
 
   defp x_match_count(coords, {c, r}, string) do
@@ -77,33 +81,28 @@ defmodule Solution do
     left_slant =
       coords
       |> get_letters(num_moves(string), {&Kernel.+(&1, c + 2), &Kernel.+(&1 * -1, r)})
-      |> dbg
       |> Enum.count(&check_match(&1, string))
 
     if left_slant + right_slant == 2, do: 1, else: 0
   end
 
   defp get_letters(coords, num_moves, {move_c, move_r}) do
-    {before_leters, after_letters} =
-      Enum.reduce(0..num_moves, {[], []}, fn n, {before_letters, after_letters} ->
-        before_coords = {move_c.(n * -1), move_r.(n * -1)}
-        after_coords = {move_c.(n), move_r.(n)}
-
-        before_letter = Map.get(coords, before_coords, "")
-        after_letter = Map.get(coords, after_coords, "")
-
-        {[before_letter | before_letters], [after_letter | after_letters]}
-      end)
-
-    Enum.map([before_leters, after_letters], fn ls ->
-      ls |> Enum.reverse() |> Enum.join("")
+    0..num_moves
+    |> Enum.reduce([], fn n, letters ->
+      letter_coords = {move_c.(n), move_r.(n)}
+      letter = Map.get(coords, letter_coords, "")
+      [letter | letters]
     end)
+    |> Enum.reverse()
+    |> Enum.join("")
   end
 
   defp check_match(string, string), do: true
   defp check_match(_, _), do: false
 
   defp num_moves(string), do: String.length(string) - 1
+
+  defp stationary(n), do: fn _ -> n end
 
   defp build_coordinates(rows) do
     rows
@@ -135,11 +134,32 @@ defmodule Solution do
       MXMXAXMASX
       """
 
-      """
-      MBS
-      BAB
-      MBS
-      """
+      # Vertical Case: 2
+      # """
+      # XSAS
+      # MAMX
+      # AMSB
+      # SXBB
+      # """
+
+      # Horizontal Case: 2
+      # """
+      # XMAS
+      # SAMX
+      # BBSB
+      # BBBB
+      # """
+
+      # Diagonal Case: 4
+      # """
+      # XBBX
+      # SMMX
+      # BAAB
+      # SBBS
+      # BAAB
+      # BMMB
+      # XBBX
+      # """
     else
       File.read!("input.txt")
     end
