@@ -9,11 +9,11 @@ defmodule Solution do
   end
 
   def part_2 do
-    coords = build_coordinates(read_input(true))
+    coords = build_coordinates(read_input())
     last = coords |> Enum.max() |> elem(0)
 
     match_fns = [&x_match_count/3]
-    ctx = %{count: 0, match_fns: match_fns, key_letter: "M", string: "MAS"}
+    ctx = %{count: 0, match_fns: match_fns, key_letter: "A", string: "MAS"}
 
     check_grid(coords, {0, 0}, last, ctx)
   end
@@ -72,18 +72,19 @@ defmodule Solution do
     |> Enum.count(&check_match(&1, string))
   end
 
-  defp x_match_count(coords, {c, r}, string) do
-    right_slant =
-      coords
-      |> get_letters(num_moves(string), {&Kernel.+(&1, c), &Kernel.+(&1, r)})
-      |> Enum.count(&check_match(&1, string))
+  defp x_match_count(coords, {r, c}, string) do
+    # In order to use the same matching logic we move the locations of the diagonals
+    # to the top and bottom left corners by incrementing and/or decrementing the row and column position
+    top_left_corner_negative_slope = {&Kernel.+(r - 1, &1), &Kernel.+(c - 1, &1)}
+    bottom_left_corner_positive_slope = {&Kernel.+(r - 1, &1), &Kernel.-(c + 1, &1)}
 
-    left_slant =
-      coords
-      |> get_letters(num_moves(string), {&Kernel.+(&1, c + 2), &Kernel.+(&1 * -1, r)})
-      |> Enum.count(&check_match(&1, string))
+    count =
+      [top_left_corner_negative_slope, bottom_left_corner_positive_slope]
+      |> Enum.map(&get_letters(coords, num_moves(string), &1))
+      |> Enum.count(&(check_match(&1, string) or check_match(&1, String.reverse(string))))
 
-    if left_slant + right_slant == 2, do: 1, else: 0
+    # Both slopes must match
+    if count == 2, do: 1, else: 0
   end
 
   defp get_letters(coords, num_moves, {move_r, move_c}) do
@@ -161,6 +162,13 @@ defmodule Solution do
       # BMMB
       # XBBX
       # """
+
+      # X-MAS Case: 1
+      # """
+      # MXS
+      # XAX
+      # MXS
+      # """
     else
       File.read!("input.txt")
     end
@@ -170,4 +178,4 @@ defmodule Solution do
 end
 
 Solution.part_1() |> dbg
-# Solution.part_2() |> dbg
+Solution.part_2() |> dbg
