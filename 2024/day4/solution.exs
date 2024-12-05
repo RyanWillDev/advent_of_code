@@ -42,30 +42,30 @@ defmodule Solution do
     check_grid(coords, location, last, %{ctx | count: count})
   end
 
-  defp vertical_match_count(coords, {c, r}, string) do
-    above = {&Kernel.+(&1 * -1, c), stationary(r)}
-    below = {&Kernel.+(&1, c), stationary(r)}
+  defp vertical_match_count(coords, {r, c}, string) do
+    above = {&Kernel.-(r, &1), stationary(c)}
+    below = {&Kernel.+(&1, r), stationary(c)}
 
     [above, below]
     |> Enum.map(&get_letters(coords, num_moves(string), &1))
     |> Enum.count(&check_match(&1, string))
   end
 
-  defp horizontal_match_count(coords, {c, r}, string) do
-    left = {stationary(c), &Kernel.+(&1 * -1, r)}
-    right = {stationary(c), &Kernel.+(&1 * 1, r)}
+  defp horizontal_match_count(coords, {r, c}, string) do
+    left = {stationary(r), &Kernel.-(c, &1)}
+    right = {stationary(r), &Kernel.+(&1, c)}
 
     [left, right]
     |> Enum.map(&get_letters(coords, num_moves(string), &1))
     |> Enum.count(&check_match(&1, string))
   end
 
-  defp diagonal_match_count(coords, {c, r}, string) do
-    negative_slope_above = {&Kernel.+(&1 * -1, c), &Kernel.+(&1 * -1, r)}
-    negative_slope_below = {&Kernel.+(&1, c), &Kernel.+(&1, r)}
+  defp diagonal_match_count(coords, {r, c}, string) do
+    negative_slope_above = {&Kernel.-(r, &1), &Kernel.-(c, &1)}
+    negative_slope_below = {&Kernel.+(r, &1), &Kernel.+(c, &1)}
 
-    postive_slope_above = {&Kernel.+(&1 * -1, c), &Kernel.+(&1, r)}
-    postive_slope_below = {&Kernel.+(&1, c), &Kernel.+(&1 * -1, r)}
+    postive_slope_above = {&Kernel.-(r, &1), &Kernel.+(c, &1)}
+    postive_slope_below = {&Kernel.+(r, &1), &Kernel.-(c, &1)}
 
     [negative_slope_above, negative_slope_below, postive_slope_above, postive_slope_below]
     |> Enum.map(&get_letters(coords, num_moves(string), &1))
@@ -86,10 +86,11 @@ defmodule Solution do
     if left_slant + right_slant == 2, do: 1, else: 0
   end
 
-  defp get_letters(coords, num_moves, {move_c, move_r}) do
+  defp get_letters(coords, num_moves, {move_r, move_c}) do
     0..num_moves
     |> Enum.reduce([], fn n, letters ->
-      letter_coords = {move_c.(n), move_r.(n)}
+      letter_coords = {move_r.(n), move_c.(n)}
+
       letter = Map.get(coords, letter_coords, "")
       [letter | letters]
     end)
